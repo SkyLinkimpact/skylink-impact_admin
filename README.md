@@ -1,5 +1,7 @@
 # Skylink Impact Admin
 
+A Next.js web interface for managing the Skylink Impact system.
+
 First, run the development server:
 
 ```bash
