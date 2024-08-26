@@ -142,7 +142,7 @@ export default function LoginPage() {
               </Button>
               <div className="flex px-0">
                 <div className="flex-1" />
-                <Link href="/">Forgot Password</Link>
+                <Link href="/forgot_password">Forgot Password</Link>
               </div>
             </form>
           </Form>

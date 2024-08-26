@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { loginFormSchema } from "./schemas";
+import { forgotPasswordFormSchema, loginFormSchema } from "./schemas";
 
 /**
  * A user login request.
@@ -31,6 +31,15 @@ export type User = {
   createdAt: Date;
 };
 
+/**
+ * An error response from the server.
+ *
+ * @remarks
+ * Represents an error response from the server. The response
+ * contains a `data` object which contains a `message` and
+ * optionally an `errors` object which contains error messages
+ * for each field.
+ */
 export type ServerErrorResponse = {
   response: {
     data: {
@@ -39,3 +48,9 @@ export type ServerErrorResponse = {
     };
   };
 };
+
+/**
+ * A request to reset a user's password.
+ *
+ */
+export type ForgotPasswordRequest = z.infer<typeof forgotPasswordFormSchema>;

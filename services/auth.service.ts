@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { User, UserLoginRequest } from "@/lib/types";
+import { User, UserLoginRequest, ForgotPasswordRequest } from "@/lib/types";
 
 /**
  * Authenticates a user with the provided login credentials.
@@ -21,5 +21,21 @@ export async function login(
  */
 export async function getUser(): Promise<User> {
   const response = await api.get<User>("user");
+  return response.data;
+}
+
+/**
+ * Sends a request to the server to reset the password for a user.
+ *
+ * @param {ForgotPasswordRequest} payload - The payload containing the user's email address.
+ * @return {Promise<{ message: string }>} A promise that resolves to an object containing a success message.
+ */
+export async function forgotPassword(
+  payload: ForgotPasswordRequest
+): Promise<{ message: string }> {
+  const response = await api.post<{ message: string }>(
+    "forgot_password",
+    payload
+  );
   return response.data;
 }

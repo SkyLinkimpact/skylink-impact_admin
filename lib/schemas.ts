@@ -11,3 +11,14 @@ export const loginFormSchema = z.object({
   email: z.string().email("Invalid email").min(1, "Email is required"),
   password: z.string().min(1, "Password is required"),
 });
+
+/**
+ * Forgot password form schema for validation
+ *
+ * @remarks
+ * These schema are used by React Hook Form to validate the inputs
+ * of the forgot password form.
+ */
+export const forgotPasswordFormSchema = z.object({
+  email: z.string().email("Invalid email").min(1, "Email is required"),
+})
