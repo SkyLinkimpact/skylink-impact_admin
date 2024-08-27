@@ -21,4 +21,24 @@ export const loginFormSchema = z.object({
  */
 export const forgotPasswordFormSchema = z.object({
   email: z.string().email("Invalid email").min(1, "Email is required"),
-})
+});
+
+/**
+ * Reset password form schema for validation
+ *
+ * @remarks
+ * These schema are used by React Hook Form to validate the inputs
+ * of the reset password form.
+ */
+export const resetPasswordFormSchema = z
+  .object({
+    token: z.string().min(1, "Token is required"),
+    password: z.string().min(1, "Password is required"),
+    password_confirmation: z
+      .string()
+      .min(1, "Password confirmation is required"),
+  })
+  .refine((data) => data.password === data.password_confirmation, { 
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
