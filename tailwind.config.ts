@@ -54,7 +54,7 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
         fontFamily: {
-          sans: `"var(--font-sans)", ${fontFamily.sans.join(",")}`,
+          sans: `var(--font-sans), ${fontFamily.sans.join(",")}`,
         },
       },
       borderRadius: {
