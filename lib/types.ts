@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { forgotPasswordFormSchema, loginFormSchema } from "./schemas";
+import {
+  forgotPasswordFormSchema,
+  loginFormSchema,
+  resetPasswordFormSchema,
+} from "./schemas";
 
 /**
  * A user login request.
@@ -54,3 +58,9 @@ export type ServerErrorResponse = {
  *
  */
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordFormSchema>;
+
+/**
+ * A request to reset a user's password.
+ *
+ */
+export type ResetPasswordRequest = z.infer<typeof resetPasswordFormSchema>;

@@ -1,5 +1,10 @@
 import api from "@/lib/api";
-import { User, UserLoginRequest, ForgotPasswordRequest } from "@/lib/types";
+import {
+  User,
+  UserLoginRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+} from "@/lib/types";
 
 /**
  * Authenticates a user with the provided login credentials.
@@ -37,5 +42,35 @@ export async function forgotPassword(
     "forgot_password",
     payload
   );
+  return response.data;
+}
+
+/**
+ * Resets a user's password.
+ *
+ * @param {ResetPasswordRequest} payload - The payload containing the user's new password and token.
+ * @return {Promise<{ message: string }>} A promise that resolves to an object containing a success message.
+ */
+export async function resetPassword(
+  payload: ResetPasswordRequest
+): Promise<{ message: string }> {
+  const response = await api.post<{ message: string }>(
+    "reset_password",
+    payload
+  );
+
+  return response.data;
+}
+
+/**
+ * Logs the user out of the application.
+ *
+ * @return {Promise<{ message: string }>} A promise that resolves to an object containing a success message.
+ */
+export async function logout(): Promise<{ message: string }> {
+  // Send a POST request to the server to log the user out.
+  const response = await api.post<{ message: string }>("user/logout");
+
+  // Return the response data. This is an object containing a success message.
   return response.data;
 }
