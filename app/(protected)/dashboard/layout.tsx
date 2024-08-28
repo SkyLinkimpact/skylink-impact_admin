@@ -13,12 +13,12 @@ import { useLayoutEffect } from "react";
  */
 export default function ProtectedLayout({
   children,
-}: {
+}: Readonly<{
   /**
    * The children components that will be rendered if the user is logged in.
    */
   children: React.ReactNode;
-}) {
+}>) {
   const { user, isUserLoading, userError } = useUser();
 
   const router = useRouter();
