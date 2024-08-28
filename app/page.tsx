@@ -26,8 +26,13 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  // Get the router.
+  const router = useRouter();
+
+  // Create a form with the login form schema.
   const form = useForm<UserLoginRequest>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -49,6 +54,9 @@ export default function LoginPage() {
         description: "Welcome. You have successfully logged in",
         position: "top-right",
       });
+
+      // Redirect the user to the dashboard.
+      router.push("/dashboard");
     },
     onError: (error: ServerErrorResponse) => {
       // Get the error message and error fields from the error response.
