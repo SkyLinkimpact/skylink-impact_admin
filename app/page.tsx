@@ -27,10 +27,25 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import useUser from "./_hooks/user.hook";
+import { useLayoutEffect } from "react";
 
 export default function LoginPage() {
   // Get the router.
   const router = useRouter();
+
+  // Get the user.
+  const { user, isUserLoading, userError } = useUser();
+
+  /**
+   * This effect is used to redirect the user to the dashboard if they are already
+   * logged in.
+   */
+  useLayoutEffect(() => {
+    if (!isUserLoading && user && !userError) { // If the user is logged in
+      router.replace("/dashboard");
+    }
+  }, [user, isUserLoading, userError, router]);
 
   // Create a form with the login form schema.
   const form = useForm<UserLoginRequest>({
