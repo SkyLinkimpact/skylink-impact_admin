@@ -54,6 +54,8 @@ export default function DashboardPage() {
 
       querClient.invalidateQueries({ queryKey: ["user"] });
 
+      querClient.clear();
+
       router.push("/");
     },
 
