@@ -6,6 +6,7 @@ import Providers from "./_components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import Image from "next/image";
 import logo from "@/app/_assets/logo.webp";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -41,7 +42,7 @@ export default function RootLayout({
         <Providers>
           <div className="h-full w-full flex flex-col items-center justify-center">
             <div className="w-full border-b bg-card text-card-foreground shadow p-4 flex items-center">
-              <div className="h-14 relative object-center w-40">
+              <Link href="/" className="h-14 relative object-center w-40">
                 <Image
                   src={logo}
                   alt="logo"
@@ -49,7 +50,7 @@ export default function RootLayout({
                   fill
                   priority
                 />
-              </div>
+              </Link>
             </div>
             <div className="flex-1 w-full overflow-auto">{children}</div>
           </div>
