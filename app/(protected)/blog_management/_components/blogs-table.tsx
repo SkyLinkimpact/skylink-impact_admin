@@ -31,11 +31,21 @@ import {
 } from "@/components/ui/table";
 import { BlogCollectionFilter } from "@/lib/types";
 import { cn, formatTime } from "@/lib/utils";
-import { Edit2, Loader, Search, Trash2 } from "lucide-react";
+import { Edit2, Loader, Search } from "lucide-react";
 import React, { useState } from "react";
 import DeleteBlogDialog from "./delete-blog-dialog";
 
+/**
+ * A table to display a list of blogs.
+ *
+ * @remarks
+ * Allows filtering by all, published, or drafts.
+ *
+ * @returns A table with columns for the blog title, date created, and actions.
+ */
 function BlogsTable() {
+  // The filter to apply to the blogs.
+  // Can be "all", "published", or "drafts".
   const [filter, setFilter] = useState<BlogCollectionFilter>("all");
 
   const {
@@ -46,11 +56,13 @@ function BlogsTable() {
     lastPage,
     handleNextPage,
     handlePrevPage,
-  } = useBlog(filter);
+  } = useBlog(filter); // The blogs, pagination, and loading state for the current filter.
+
   return (
     <Card className="w-full">
       <CardHeader className="flex-row justify-between items-center">
         <CardTitle className="uppercase">
+          {/* Display the filter in the title. If the filter is not "drafts", append " Blogs" */}
           {filter}
           {filter !== "drafts" && " Blogs"}
         </CardTitle>
