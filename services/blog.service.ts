@@ -46,3 +46,14 @@ export async function getAllDraftBlogs(
 
   return response.data;
 }
+
+/**
+ * Deletes a blog post.
+ *
+ * @param {string} id - The ID of the blog post to delete.
+ * @return {Promise<void>} A promise that resolves when the blog post has been deleted.
+ */
+export async function deleteBlog(id: string): Promise<void> {
+  // Remove the blog post from the server
+  await api.delete(`blog/${id}`);
+}

@@ -39,7 +39,7 @@ export default function useBlog(filter: BlogCollectionFilter = "all"): {
     /**
      * The query key is used to identify the query. It is also used as the key for the cache.
      */
-    queryKey: ["blog", filter, currentPage],
+    queryKey: ["blogs", filter, currentPage],
     /**
      * The function that is used to fetch the data.
      */

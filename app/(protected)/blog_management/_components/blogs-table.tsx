@@ -33,6 +33,7 @@ import { BlogCollectionFilter } from "@/lib/types";
 import { cn, formatTime } from "@/lib/utils";
 import { Edit2, Loader, Search, Trash2 } from "lucide-react";
 import React, { useState } from "react";
+import DeleteBlogDialog from "./delete-blog-dialog";
 
 function BlogsTable() {
   const [filter, setFilter] = useState<BlogCollectionFilter>("all");
@@ -108,13 +109,7 @@ function BlogsTable() {
                     >
                       <Edit2 />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="rounded-full"
-                    >
-                      <Trash2 />
-                    </Button>
+                    <DeleteBlogDialog blog={blog} />
                   </TableCell>
                 </TableRow>
               ))}
