@@ -38,7 +38,21 @@ export const resetPasswordFormSchema = z
       .string()
       .min(1, "Password confirmation is required"),
   })
-  .refine((data) => data.password === data.password_confirmation, { 
+  .refine((data) => data.password === data.password_confirmation, {
     message: "Passwords do not match",
     path: ["password_confirmation"],
   });
+
+/**
+ * Blog form schema for validation
+ *
+ * @remarks
+ * These schema are used by React Hook Form to validate the inputs
+ * of the blog form.
+ */
+export const createBlogFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Content is required"),
+  isDraft: z.boolean().nullish().default(false),
+  media_id: z.string().min(1, "Thumbnail is required"),
+});
