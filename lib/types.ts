@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  createBlogFormSchema,
   forgotPasswordFormSchema,
   loginFormSchema,
   resetPasswordFormSchema,
@@ -186,3 +187,8 @@ export type Media = {
  * The possible filters for the blog collection.
  */
 export type BlogCollectionFilter = "all" | "published" | "drafts";
+
+/**
+ * A request to create a new blog post.
+ */
+export type CreateBlogRequest = z.infer<typeof createBlogFormSchema>;

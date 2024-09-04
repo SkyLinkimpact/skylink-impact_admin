@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { Blog, PaginatedResponse } from "@/lib/types";
+import { Blog, CreateBlogRequest, PaginatedResponse } from "@/lib/types";
 
 /**
  * Retrieves all blogs.
@@ -56,4 +56,22 @@ export async function getAllDraftBlogs(
 export async function deleteBlog(id: string): Promise<void> {
   // Remove the blog post from the server
   await api.delete(`blog/${id}`);
+}
+
+/**
+ * Creates a new blog post.
+ *
+ * @param {CreateBlogRequest} payload - The payload of the request.
+ * @return {Promise<Blog>} The created blog post.
+ */
+export async function createBlog(payload: CreateBlogRequest): Promise<Blog> {
+  /**
+   * Make a POST request to the server to create a new blog post.
+   */
+  const response = await api.post<Blog>("blog", payload);
+
+  /**
+   * Return the created blog post.
+   */
+  return response.data;
 }
