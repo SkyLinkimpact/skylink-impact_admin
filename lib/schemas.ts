@@ -56,3 +56,17 @@ export const createBlogFormSchema = z.object({
   isDraft: z.boolean().nullish().default(false),
   media_id: z.string().min(1, "Thumbnail is required"),
 });
+
+/**
+ * Update blog form schema for validation
+ *
+ * @remarks
+ * These schema are used by React Hook Form to validate the inputs
+ * of the blog form.
+ */
+export const updateBlogFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Content is required"),
+  media_id: z.string().min(1, "Thumbnail is required"),
+  isDraft: z.boolean().nullish().default(false),
+});

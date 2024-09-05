@@ -22,17 +22,23 @@ import { createBlogFormSchema } from "@/lib/schemas";
 import { CreateBlogRequest, ServerErrorResponse } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import Editor from "../_components/editor";
+import Editor from "@/app/(protected)/blog_management/_components/editor";
 import MediaUpload from "@/app/_components/media_upload";
 import { useMutation } from "@tanstack/react-query";
 import { createBlog } from "@/services/blog.service";
 import { toast } from "sonner";
 import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 /**
  * The page to create a new blog post.
  */
 export default function CreateNewBlogPage() {
+  /**
+   * The router for the page.
+   */
+  const router = useRouter();
+
   /**
    * The form state for the blog post.
    */
@@ -57,10 +63,11 @@ export default function CreateNewBlogPage() {
    */
   const createBlogMutation = useMutation({
     mutationFn: (data: CreateBlogRequest) => createBlog(data),
-    onSuccess: () => {
+    onSuccess: (res) => {
       toast.success("Blog created successfully", {
         position: "top-right",
       });
+      router.push(`/blog_management/edit/${res.id}`);
     },
     onError: (error: ServerErrorResponse) => {
       toast.error(error.response.data.message, {
@@ -155,7 +162,7 @@ export default function CreateNewBlogPage() {
                   <FormControl>
                     <RadioGroup
                       onValueChange={(value) => {
-                        form.setValue("isDraft", Boolean(value));
+                        form.setValue("isDraft", value === "true");
                       }}
                       defaultValue={field.value ? "true" : "false"}
                     >

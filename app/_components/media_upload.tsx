@@ -5,8 +5,14 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { uploadMedia } from "@/services/media.service";
 
-function MediaUpload({ onChange }: { onChange: (value: string) => void }) {
-  const [img, setImg] = useState<string>();
+function MediaUpload({
+  onChange,
+  imgUrl,
+}: {
+  onChange: (value: string) => void;
+  imgUrl?: string;
+}) {
+  const [img, setImg] = useState<string>(imgUrl ?? '');
   const uploadMediaMutation = useMutation({
     mutationFn: (file: File) => uploadMedia(file),
     onSuccess: (data) => {
