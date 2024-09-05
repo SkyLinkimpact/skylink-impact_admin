@@ -4,10 +4,14 @@ import {
   forgotPasswordFormSchema,
   loginFormSchema,
   resetPasswordFormSchema,
+  updateBlogFormSchema,
 } from "./schemas";
 
 /**
  * A user login request.
+ *
+ * @remarks
+ * This type is inferred from the {@link loginFormSchema} schema.
  */
 export type UserLoginRequest = z.infer<typeof loginFormSchema>;
 
@@ -57,11 +61,16 @@ export type ServerErrorResponse = {
 /**
  * A request to reset a user's password.
  *
+ * @remarks
+ * This type is inferred from the {@link forgotPasswordFormSchema} schema.
  */
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordFormSchema>;
 
 /**
  * A request to reset a user's password.
+ *
+ * @remarks
+ * This type is inferred from the {@link resetPasswordFormSchema} schema.
  *
  */
 export type ResetPasswordRequest = z.infer<typeof resetPasswordFormSchema>;
@@ -190,5 +199,15 @@ export type BlogCollectionFilter = "all" | "published" | "drafts";
 
 /**
  * A request to create a new blog post.
+ * @remarks
+ * This type is inferred from the {@link createBlogFormSchema} schema.
  */
 export type CreateBlogRequest = z.infer<typeof createBlogFormSchema>;
+
+/**
+ * A request to update an existing blog post.
+ *
+ * @remarks
+ * This type is inferred from the {@link updateBlogFormSchema} schema.
+ */
+export type UpdateBlogRequest = z.infer<typeof updateBlogFormSchema>;

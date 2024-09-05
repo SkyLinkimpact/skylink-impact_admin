@@ -1,5 +1,10 @@
 import api from "@/lib/api";
-import { Blog, CreateBlogRequest, PaginatedResponse } from "@/lib/types";
+import {
+  Blog,
+  CreateBlogRequest,
+  PaginatedResponse,
+  UpdateBlogRequest,
+} from "@/lib/types";
 
 /**
  * Retrieves all blogs.
@@ -74,4 +79,39 @@ export async function createBlog(payload: CreateBlogRequest): Promise<Blog> {
    * Return the created blog post.
    */
   return response.data;
+}
+
+/**
+ * Retrieves a blog post by ID.
+ *
+ * @param {string} id - The ID of the blog post to retrieve.
+ * @return {Promise<Blog>} The blog post.
+ */
+export async function getBlog(id: string): Promise<Blog> {
+  /**
+   * Make a GET request to the server to retrieve a blog post by ID.
+   */
+  const response = await api.get<Blog>(`blog/${id}`);
+
+  /**
+   * Return the retrieved blog post.
+   */
+  return response.data;
+}
+
+/**
+ * Updates a blog post.
+ *
+ * @param {string} id - The ID of the blog post to update.
+ * @param {UpdateBlogRequest} payload - The payload of the request.
+ * @return {Promise<void>} A promise that resolves when the blog post has been updated.
+ */
+export async function updateBlog(
+  id: string,
+  payload: UpdateBlogRequest
+): Promise<void> {
+  /**
+   * Make a PATCH request to the server to update a blog post.
+   */
+  await api.patch<Blog>(`blog/${id}`, payload);
 }

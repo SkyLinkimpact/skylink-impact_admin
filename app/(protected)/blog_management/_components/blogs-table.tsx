@@ -34,6 +34,7 @@ import { cn, formatTime } from "@/lib/utils";
 import { Edit2, Loader, Search } from "lucide-react";
 import React, { useState } from "react";
 import DeleteBlogDialog from "./delete-blog-dialog";
+import { useRouter } from "next/navigation";
 
 /**
  * A table to display a list of blogs.
@@ -47,6 +48,8 @@ function BlogsTable() {
   // The filter to apply to the blogs.
   // Can be "all", "published", or "drafts".
   const [filter, setFilter] = useState<BlogCollectionFilter>("all");
+
+  const router = useRouter(); // The router for navigation.
 
   const {
     isBlogsLoading,
@@ -118,6 +121,9 @@ function BlogsTable() {
                       size="icon"
                       variant="outline"
                       className="rounded-full"
+                      onClick={() =>
+                        router.push(`/blog_management/edit/${blog.id}`)
+                      }
                     >
                       <Edit2 />
                     </Button>
