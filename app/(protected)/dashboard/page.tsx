@@ -40,7 +40,7 @@ export default function DashboardPage() {
 
   const router = useRouter();
 
-  const querClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   const logoutMutation = useMutation({
     mutationFn: logout,
@@ -52,7 +52,9 @@ export default function DashboardPage() {
 
       window.localStorage.removeItem("siak");
 
-      querClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      queryClient.clear();
 
       router.push("/");
     },
