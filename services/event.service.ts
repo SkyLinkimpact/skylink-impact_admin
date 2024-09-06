@@ -49,3 +49,21 @@ export async function createEvent(payload: CreateEventRequest): Promise<Event> {
   // Return the created event
   return response.data;
 }
+
+/**
+ * Updates an existing event.
+ *
+ * @param {string} id - The ID of the event to update.
+ * @param {CreateEventRequest} payload - The request to update the event.
+ * @return {Promise<Event>} - A promise that resolves to the updated event.
+ */
+export async function updateEvent(
+  id: string,
+  payload: CreateEventRequest
+): Promise<Event> {
+  // Make a PATCH request to the server to update an event
+  const response = await api.patch<Event>(`/events/${id}`, payload);
+
+  // Return the updated event
+  return response.data;
+}

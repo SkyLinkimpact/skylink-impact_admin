@@ -4,37 +4,64 @@ import MediaUpload from "@/app/_components/media_upload";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  FormControl,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { createEventFormSchema } from "@/lib/schemas";
 import { CreateEventRequest, ServerErrorResponse } from "@/lib/types";
-import { createEvent } from "@/services/event.service";
+import { getEvent, updateEvent } from "@/services/event.service";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 /**
- * Page to create a new event.
+ * The page to edit an existing event.
+ *
+ * @param {Object} props
+ * @prop {string} props.id - The ID of the event to edit.
  */
-export default function CreateNewEventPage() {
+export default function UpdateEventPage({
+  params: { id },
+}: Readonly<{ params: { id: string } }>) {
   const router = useRouter();
 
+  const queryClient = useQueryClient();
+
+  /**
+   * Get the event by ID.
+   */
+  const { data: event, isLoading: isEventLoading } = useQuery({
+    queryKey: ["event", id],
+    queryFn: async () => {
+      try {
+        return getEvent(id);
+      } catch (error) {
+        toast.error("Event not found", {
+          position: "top-right",
+        });
+        router.push("/event_management");
+      }
+    },
+  });
+
+  /**
+   * The form for editing the event.
+   */
   const form = useForm<CreateEventRequest>({
     /**
      * The resolver to validate the form data.
@@ -46,18 +73,22 @@ export default function CreateNewEventPage() {
     defaultValues: {
       title: "",
       url: "",
-      event_at: new Date().toISOString().slice(0, 16),
+      event_at: "",
       media_id: "",
     },
   });
 
-  const createEventMutation = useMutation({
-    mutationFn: (payload: CreateEventRequest) => createEvent(payload),
+  /**
+   * The mutation to update the event.
+   */
+  const updateEventMutation = useMutation({
+    mutationFn: (payload: CreateEventRequest) => updateEvent(id, payload),
     onSuccess: (res) => {
       toast.success("Event created successfully", {
         position: "top-right",
       });
-      router.push(`/event_management/edit/${res.id}`);
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["event", id] });
     },
     onError: (error: ServerErrorResponse) => {
       toast.error(error.response.data.message, {
@@ -94,15 +125,39 @@ export default function CreateNewEventPage() {
     },
   });
 
+  /**
+   * Handle form submission.
+   */
   const handleSubmit = form.handleSubmit((data) => {
-    createEventMutation.mutate(data);
+    updateEventMutation.mutate(data);
   });
+
+  useEffect(() => {
+    if (event) {
+      /**
+       * Set the form values from the event.
+       */
+      form.setValue("title", event.title);
+      form.setValue("url", event.url);
+      form.setValue("media_id", event.thumbnail?.id ?? "");
+
+      const localDate = new Date(event.eventAt);
+      const offset = localDate.getTimezoneOffset();
+      localDate.setMinutes(localDate.getMinutes() - offset); // Adjust for timezone offset
+      form.setValue("event_at", localDate.toISOString().slice(0, 16)); // Format the date correctly
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event]);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create New Event</CardTitle>
+        <CardTitle>
+          Edit Event - <span className="text-muted-foreground">{id}</span>
+        </CardTitle>
         <CardDescription>
-          Create a new event. You can edit this event later.
+          Edit an existing event. You can change the title, thumbnail, URL, or
+          date/time.
         </CardDescription>
       </CardHeader>
 
@@ -115,7 +170,10 @@ export default function CreateNewEventPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Thumbnail</FormLabel>
-                  <MediaUpload onChange={field.onChange} />
+                  <MediaUpload
+                    imgUrl={event?.thumbnail?.url}
+                    onChange={field.onChange}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -156,11 +214,7 @@ export default function CreateNewEventPage() {
                 <FormItem>
                   <FormLabel>Date/Time</FormLabel>
                   <FormControl>
-                    <Input
-                      type="datetime-local"
-                      placeholder="Event URL"
-                      {...field}
-                    />
+                    <Input type="datetime-local" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,9 +224,9 @@ export default function CreateNewEventPage() {
             <Button
               type="submit"
               className="flex items-center justify-center w-full"
-              disabled={createEventMutation.isPending}
+              disabled={updateEventMutation.isPending}
             >
-              {createEventMutation.isPending ? (
+              {updateEventMutation.isPending ? (
                 <Loader className="animate-spin" />
               ) : (
                 "SAVE EVENT"

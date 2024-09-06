@@ -1,10 +1,19 @@
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { uploadMedia } from "@/services/media.service";
 
+/**
+ * MediaUpload component
+ *
+ * @param {Object} props - Component props
+ * @param {Function} props.onChange - Called when the user selects a file
+ * @param {string} [props.imgUrl] - The URL of the image to display
+ *
+ * @returns {React.ReactElement} The component
+ */
 function MediaUpload({
   onChange,
   imgUrl,
@@ -12,19 +21,41 @@ function MediaUpload({
   onChange: (value: string) => void;
   imgUrl?: string;
 }) {
-  const [img, setImg] = useState<string>(imgUrl ?? '');
+  const [img, setImg] = useState<string>();
   const uploadMediaMutation = useMutation({
+    /**
+     * The mutation function
+     *
+     * @param {File} file - The file to upload
+     * @returns {Promise<MediaUploadServerResponse>} The response from the server
+     */
     mutationFn: (file: File) => uploadMedia(file),
+    /**
+     * Called when the mutation is successful
+     *
+     * @param {MediaUploadServerResponse} data - The response from the server
+     */
     onSuccess: (data) => {
       setImg(data.url);
       onChange(data.id);
     },
   });
+
+  /**
+   * Update the component state when the imgUrl prop changes
+   */
+  useEffect(() => {
+    setImg(imgUrl);
+  }, [imgUrl]);
+
   return (
     <div className="w-full h-64 bg-slate-100 relative">
-      {img && (
-        <Image src={img} alt="upload media" objectFit="cover" fill priority />
-      )}
+      {
+        // Display the uploaded image
+        img && (
+          <Image src={img} alt="upload media" objectFit="cover" fill priority />
+        )
+      }
       <Input
         type="file"
         className="hidden"
@@ -33,6 +64,7 @@ function MediaUpload({
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) {
+            // Call the mutation function with the file
             uploadMediaMutation.mutate(file);
           }
         }}
