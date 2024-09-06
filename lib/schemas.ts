@@ -70,3 +70,17 @@ export const updateBlogFormSchema = z.object({
   media_id: z.string().min(1, "Thumbnail is required"),
   isDraft: z.boolean().nullish().default(false),
 });
+
+  /**
+   * Creates a schema for validating the create event form.
+   *
+   * @remarks
+   * These schema are used by React Hook Form to validate the inputs
+   * of the create event form.
+   */
+  export const createEventFormSchema = z.object({
+    title: z.string().min(1, "Title is required"),
+    url: z.string().min(1, "Event URL is required").url("Invalid URL"),
+    media_id: z.string().min(1, "Thumbnail is required"),
+    event_at: z.string().min(1, "Date/Time is required"),
+  });
