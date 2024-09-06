@@ -27,21 +27,8 @@ import { toast } from "sonner";
 export default function DeleteBlogDialog({ blog }: Readonly<{ blog: Blog }>) {
   const queryClient = useQueryClient();
 
-  /**
-   * The mutation to delete a blog post.
-   *
-   * @type {import("@tanstack/react-query").UseMutationResult}
-   */
   const deleteBlogMutation = useMutation({
-    /**
-     * The function to call when the mutation is triggered.
-     *
-     * @returns {Promise<void>} A promise that resolves when the blog post has been deleted.
-     */
     mutationFn: () => deleteBlog(blog.id),
-    /**
-     * The function to call when the mutation is successful.
-     */
     onSuccess: () => {
       /**
        * Invalidate the cache for the blog posts.
