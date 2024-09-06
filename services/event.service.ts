@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { Event } from "@/lib/types";
+import { CreateEventRequest, Event } from "@/lib/types";
 
 /**
  * Retrieves all events from the server.
@@ -34,4 +34,18 @@ export async function getEvent(id: string): Promise<Event> {
 export async function deleteEvent(id: string): Promise<void> {
   // Make a DELETE request to the server to delete an event by ID
   await api.delete(`/events/${id}`);
+}
+
+/**
+ * Creates a new event.
+ *
+ * @param {CreateEventRequest} payload - The request to create an event.
+ * @return {Promise<Event>} - A promise that resolves to the created event.
+ */
+export async function createEvent(payload: CreateEventRequest): Promise<Event> {
+  // Make a POST request to the server to create an event
+  const response = await api.post<Event>("/events", payload);
+
+  // Return the created event
+  return response.data;
 }

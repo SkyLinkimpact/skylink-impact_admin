@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   createBlogFormSchema,
+  createEventFormSchema,
   forgotPasswordFormSchema,
   loginFormSchema,
   resetPasswordFormSchema,
@@ -242,3 +243,11 @@ export type CreateBlogRequest = z.infer<typeof createBlogFormSchema>;
  * This type is inferred from the {@link updateBlogFormSchema} schema.
  */
 export type UpdateBlogRequest = z.infer<typeof updateBlogFormSchema>;
+
+/**
+ * A request to create a new event.
+ *
+ * @remarks
+ * This type is inferred from the {@link createEventFormSchema} schema.
+ */
+export type CreateEventRequest = z.infer<typeof createEventFormSchema>;
