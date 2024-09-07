@@ -251,3 +251,36 @@ export type UpdateBlogRequest = z.infer<typeof updateBlogFormSchema>;
  * This type is inferred from the {@link createEventFormSchema} schema.
  */
 export type CreateEventRequest = z.infer<typeof createEventFormSchema>;
+
+/**
+ * A testimonial.
+ *
+ * Represents a testimonial.
+ */
+export type Testimonial = {
+  /**
+   * The id of the testimonial.
+   */
+  id: string;
+  /**
+   * The name of the person who gave the testimonial.
+   */
+  name: string;
+  /**
+   * The comment given by the person who gave the testimonial.
+   */
+  comment: string;
+  /**
+   * Whether the testimonial is approved.
+   */
+  approved: boolean;
+  /**
+   * The date when the testimonial was created.
+   */
+  createdAt: Date;
+};
+
+/**
+ * The possible filters for the testimonial collection.
+ */
+export type TestimonialCollectionFilter = "all" | "pending";
