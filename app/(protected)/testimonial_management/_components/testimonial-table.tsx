@@ -116,6 +116,27 @@ export default function TestimonialTable() {
           </Table>
         )}
       </CardContent>
+
+      {count && count > 15 && (
+        <CardFooter>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  isActive={currentPage !== 1}
+                  onClick={handlePrevPage}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  isActive={lastPage !== currentPage}
+                  onClick={handleNextPage}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </CardFooter>
+      )}
     </Card>
   );
 }
