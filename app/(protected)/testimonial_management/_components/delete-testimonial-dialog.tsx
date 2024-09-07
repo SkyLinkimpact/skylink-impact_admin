@@ -10,34 +10,36 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Blog, ServerErrorResponse } from "@/lib/types";
+import { ServerErrorResponse, Testimonial } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { deleteBlog } from "@/services/blog.service";
+import { deleteTestimonial } from "@/services/testimonial.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 /**
- * A dialog to delete a blog post.
+ * A dialog to delete a testimonial.
  *
  * @param {Object} props
- * @prop {Blog} props.blog - The blog post to delete.
+ * @prop {Testimonial} props.testimonial - The testimonial to delete.
  * @returns {JSX.Element} The delete dialog component.
  */
-export default function DeleteBlogDialog({ blog }: Readonly<{ blog: Blog }>) {
+export default function DeleteTestimonialDialog({
+  testimonial,
+}: Readonly<{ testimonial: Testimonial }>) {
   const queryClient = useQueryClient();
 
-  const deleteBlogMutation = useMutation({
-    mutationFn: () => deleteBlog(blog.id),
+  const deleteTestimonialMutation = useMutation({
+    mutationFn: () => deleteTestimonial(testimonial.id),
     onSuccess: () => {
       /**
-       * Invalidate the cache for the blog posts.
+       * Invalidate the cache for the testimonials query.
        */
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      queryClient.invalidateQueries({ queryKey: ["testimonials"] });
       /**
        * Show a success message to the user.
        */
-      toast.success("Blog deleted", {
+      toast.success("Testimonial deleted", {
         position: "top-right",
       });
     },
@@ -59,11 +61,11 @@ export default function DeleteBlogDialog({ blog }: Readonly<{ blog: Blog }>) {
   /**
    * The function to call when the user clicks the delete button.
    */
-  const handleDeleteBlog = () => {
+  const handleDeleteTestimonial = () => {
     /**
      * Trigger the mutation.
      */
-    deleteBlogMutation.mutate();
+    deleteTestimonialMutation.mutate();
   };
 
   return (
@@ -76,20 +78,19 @@ export default function DeleteBlogDialog({ blog }: Readonly<{ blog: Blog }>) {
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete blog?</AlertDialogTitle>
+          <AlertDialogTitle>Delete testimonial?</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete{" "}
-            <strong>&quot;{blog.title}&quot;</strong>? This will permanently
-            remove the blog post and all associated data.
+            Are you sure you want to delete this testimonial? This action cannot
+            be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            disabled={deleteBlogMutation.isPending}
+            disabled={deleteTestimonialMutation.isPending}
             className={cn(buttonVariants({ variant: "destructive" }))}
-            onClick={handleDeleteBlog}
+            onClick={handleDeleteTestimonial}
           >
             Accept
           </AlertDialogAction>

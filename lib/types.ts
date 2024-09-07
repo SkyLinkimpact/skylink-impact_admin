@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   createBlogFormSchema,
+  createEventFormSchema,
   forgotPasswordFormSchema,
   loginFormSchema,
   resetPasswordFormSchema,
@@ -148,7 +149,35 @@ export type Blog = {
   /**
    * The thumbnail of the blog post.
    */
-  thumbnail: Omit<Media, "blogs"> | null;
+  thumbnail: Omit<Media, "blogs" | "events"> | null;
+};
+
+/**
+ * An event.
+ *
+ * Represents an event.
+ */
+export type Event = {
+  /**
+   * The ID of the event.
+   */
+  id: string;
+  /**
+   * The title of the event.
+   */
+  title: string;
+  /**
+   * The URL of the event.
+   */
+  url: string;
+  /**
+   * The thumbnail of the event.
+   */
+  thumbnail: Omit<Media, "blogs" | "events"> | null;
+  /**
+   * The date the event is happening.
+   */
+  eventAt: Date;
 };
 
 /**
@@ -189,7 +218,10 @@ export type Media = {
    * The blogs that the media item is associated with.
    */
   blogs: Pick<Blog, "id" | "title">[];
-  // TODO: event collection type
+  /**
+   * The events that the media item is associated with.
+   */
+  events: Pick<Event, "id" | "title">[];
 };
 
 /**
@@ -211,3 +243,44 @@ export type CreateBlogRequest = z.infer<typeof createBlogFormSchema>;
  * This type is inferred from the {@link updateBlogFormSchema} schema.
  */
 export type UpdateBlogRequest = z.infer<typeof updateBlogFormSchema>;
+
+/**
+ * A request to create a new event.
+ *
+ * @remarks
+ * This type is inferred from the {@link createEventFormSchema} schema.
+ */
+export type CreateEventRequest = z.infer<typeof createEventFormSchema>;
+
+/**
+ * A testimonial.
+ *
+ * Represents a testimonial.
+ */
+export type Testimonial = {
+  /**
+   * The id of the testimonial.
+   */
+  id: string;
+  /**
+   * The name of the person who gave the testimonial.
+   */
+  name: string;
+  /**
+   * The comment given by the person who gave the testimonial.
+   */
+  comment: string;
+  /**
+   * Whether the testimonial is approved.
+   */
+  approved: boolean;
+  /**
+   * The date when the testimonial was created.
+   */
+  createdAt: Date;
+};
+
+/**
+ * The possible filters for the testimonial collection.
+ */
+export type TestimonialCollectionFilter = "all" | "pending";
