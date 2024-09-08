@@ -129,6 +129,7 @@ export default function UpdateEventPage({
    * Handle form submission.
    */
   const handleSubmit = form.handleSubmit((data) => {
+    console.log("data", data);
     updateEventMutation.mutate(data);
   });
 
