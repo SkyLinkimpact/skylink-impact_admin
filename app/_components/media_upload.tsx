@@ -53,7 +53,7 @@ function MediaUpload({
       {
         // Display the uploaded image
         img && (
-          <Image src={img} alt="upload media" objectFit="cover" fill />
+          <Image src={img} alt="upload media" objectFit="cover" fill priority />
         )
       }
       <Input
