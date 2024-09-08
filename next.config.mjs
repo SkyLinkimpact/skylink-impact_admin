@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
+        protocol: process.env.NODE_ENV === "preview" ? "https" : "http",
         hostname: process.env.BACKEND_HOST,
       },
     ],
