@@ -33,7 +33,11 @@ const INITIAL_BLOG_CONTENT: Element[] = [
  * @param children The children of the element.
  * @param element The element itself.
  */
-function SlateElement({ attributes, children, element }: RenderElementProps) {
+function SlateElement({
+  attributes,
+  children,
+  element,
+}: Readonly<RenderElementProps>) {
   // Switch on the element type to render the correct element.
   switch (element.type) {
     /**
@@ -90,7 +94,7 @@ function SlateElement({ attributes, children, element }: RenderElementProps) {
  * @param children - The children of the leaf node.
  * @param leaf - The leaf node itself.
  */
-function Leaf({ attributes, children, leaf }: RenderLeafProps) {
+function Leaf({ attributes, children, leaf }: Readonly<RenderLeafProps>) {
   /**
    * If the leaf node is bold, wrap its children in a `strong` element.
    */
@@ -176,12 +180,12 @@ const toggleMark = (
 function MarkButton({
   format,
   icon: Icon,
-}: {
+}: Readonly<{
   format: keyof Omit<CustomText, "text">;
   icon:
     | React.ComponentType<React.SVGAttributes<SVGElement>>
     | React.ComponentType<IconProps & RefAttributes<SVGSVGElement>>;
-}): JSX.Element {
+}>): JSX.Element {
   const editor = useSlate();
   const isActive = isMarkActive(editor, format);
 
@@ -260,7 +264,7 @@ const isHeadingActive = (editor: any, level: number) => {
  *
  * @param level - The level of the header.
  */
-function HeadingButton({ level }: { level: number }): JSX.Element {
+function HeadingButton({ level }: Readonly<{ level: number }>): JSX.Element {
   const editor = useSlate();
   const isActive = isHeadingActive(editor, level);
 
@@ -330,10 +334,10 @@ function ToolBar() {
 function Editor({
   initialValue,
   onValueChange,
-}: {
+}: Readonly<{
   initialValue?: string;
   onValueChange: (value: string) => void;
-}) {
+}>) {
   const [editor] = useState(() => withReact(createEditor()));
   const renderElement = useCallback(
     (props: RenderElementProps) => <SlateElement {...props} />,

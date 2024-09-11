@@ -28,8 +28,14 @@ const greet = (name: string): string => {
   const currentHour = new Date().getHours();
 
   // Determine the correct greeting based on the current time of day
-  const greeting =
-    currentHour < 12 ? "Morning" : currentHour < 18 ? "Afternoon" : "Evening";
+  let greeting: string;
+  if (currentHour < 12) {
+    greeting = "Morning";
+  } else if (currentHour < 18) {
+    greeting = "Afternoon";
+  } else {
+    greeting = "Evening";
+  }
 
   // Return the greeting message with the name inserted
   return `Good ${greeting}, ${name}!`;

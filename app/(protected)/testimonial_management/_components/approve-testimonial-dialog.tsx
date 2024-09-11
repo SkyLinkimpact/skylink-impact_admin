@@ -14,10 +14,9 @@ import { ServerErrorResponse, Testimonial } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
   approveTestimonial,
-  deleteTestimonial,
 } from "@/services/testimonial.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck, Trash2 } from "lucide-react";
+import { CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 
 /**

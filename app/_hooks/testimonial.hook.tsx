@@ -37,18 +37,16 @@ export default function useTestimonial(
      * The function that is used to fetch the data.
      */
     queryFn: () => {
-      switch (filter) {
-        case "pending":
-          /**
-           * If the filter is "pending", get all the pending testimonials.
-           */
-          return getPendingTestimonials(currentPage);
-        default:
-          /**
-           * If the filter is "all", get all the testimonials.
-           */
-          return getAllTestimonials(currentPage);
+      if (filter === "pending") {
+        /**
+         * If the filter is "pending", get all the pending testimonials.
+         */
+        return getPendingTestimonials(currentPage);
       }
+      /**
+       * If the filter is "all", get all the testimonials.
+       */
+      return getAllTestimonials(currentPage);
     },
   });
 

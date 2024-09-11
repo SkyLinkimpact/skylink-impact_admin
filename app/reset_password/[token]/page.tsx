@@ -31,9 +31,9 @@ import { toast } from "sonner";
 
 export default function ResetPasswordPage({
   params: { token }, // The token that was sent to the user via email
-}: {
+}: Readonly<{
   params: { token: string }; // The shape of the params that are passed to this page
-}) {
+}>) {
   // Create a form with a schema that matches the shape of the server's response
   const form = useForm<ResetPasswordRequest>({
     resolver: zodResolver(resetPasswordFormSchema), // Use the schema to validate the form
