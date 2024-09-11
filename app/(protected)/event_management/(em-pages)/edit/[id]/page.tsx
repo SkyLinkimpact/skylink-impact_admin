@@ -45,11 +45,11 @@ export default function UpdateEventPage({
   /**
    * Get the event by ID.
    */
-  const { data: event, isLoading: isEventLoading } = useQuery({
+  const { data: event } = useQuery({
     queryKey: ["event", id],
     queryFn: async () => {
       try {
-        return getEvent(id);
+        return await getEvent(id);
       } catch (error) {
         toast.error("Event not found", {
           position: "top-right",

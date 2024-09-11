@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table";
 import { TestimonialCollectionFilter } from "@/lib/types";
 import { cn, formatTime } from "@/lib/utils";
-import { Edit2, Loader, Search } from "lucide-react";
+import { Loader, Search } from "lucide-react";
 import { useState } from "react";
 import DeleteTestimonialDialog from "./delete-testimonial-dialog";
 import ApproveTestimonialDialog from "./approve-testimonial-dialog";

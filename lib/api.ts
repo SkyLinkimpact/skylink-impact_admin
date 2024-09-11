@@ -18,7 +18,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 }, 
 (error) => {
-  return Promise.reject(error);
+  return Promise.reject(new Error(error));
 });
 
 export default api;

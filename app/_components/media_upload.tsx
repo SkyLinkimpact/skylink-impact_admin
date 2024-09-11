@@ -17,10 +17,10 @@ import { uploadMedia } from "@/services/media.service";
 function MediaUpload({
   onChange,
   imgUrl,
-}: {
+}: Readonly<{
   onChange: (value: string) => void;
   imgUrl?: string;
-}) {
+}>) {
   const [img, setImg] = useState<string>();
   const uploadMediaMutation = useMutation({
     /**
