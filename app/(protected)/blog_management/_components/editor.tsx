@@ -387,11 +387,19 @@ const insertLink = (editor: SEditor, url: string): void => {
   }
 };
 
+/**
+ * The `AddLinkButton` component renders a button that allows the user to insert
+ * a link at the current selection. When the button is clicked, a popover is
+ * rendered with an input field for the user to enter the URL of the link. Once
+ * the user has entered the URL and clicks Enter, the link is inserted at the
+ * current selection.
+ */
 function AddLinkButton() {
   const editor = useSlate();
   const isActive = isLinkActive(editor);
   const [isOpen, setIsOpen] = useState(false);
   const [url, setUrl] = useState("");
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -402,21 +410,28 @@ function AddLinkButton() {
           className={cn(isActive && "bg-accent")}
           disabled={isActive}
           onClick={() => setIsOpen(true)}
+          // When the button is clicked, the popover is opened
         >
           <Link1Icon />
         </Button>
       </PopoverTrigger>
 
       <PopoverContent className="flex flex-col gap-2">
+        {/* The label for the input field */}
         <Label htmlFor="url">URL</Label>
+        {/* The input field for the user to enter the URL */}
         <Input
           id="url"
           value={url}
+          // Update the state when the user types in the input field
           onChange={(e) => setUrl(e.target.value)}
+          // When the user clicks Enter, insert the link at the current selection
           onKeyUp={(e) => {
             if (e.key === "Enter") {
               insertLink(editor, url);
+              // Clear the input field
               setUrl("");
+              // Close the popover
               setIsOpen(false);
             }
           }}
@@ -425,7 +440,11 @@ function AddLinkButton() {
     </Popover>
   );
 }
-
+/**
+ * A button that removes the link at the current selection.
+ *
+ * @returns A Slate editor button.
+ */
 function RemoveLinkButton() {
   const editor = useSlate();
   return (
@@ -434,10 +453,12 @@ function RemoveLinkButton() {
       variant="outline"
       size="sm"
       onClick={() => {
+        // If the selection is inside a link, remove the link
         if (isLinkActive(editor)) {
           unwrapLink(editor);
         }
       }}
+      // Disable the button if the selection is not inside a link
       disabled={!isLinkActive(editor)}
     >
       <LinkBreak2Icon />
@@ -471,6 +492,7 @@ function ToolBar() {
         <AddLinkButton />
         <RemoveLinkButton />
       </div>
+      <div className="space-x-1 px-2"></div>
     </div>
   );
 }
@@ -481,14 +503,12 @@ function ToolBar() {
  * 1. `isInline` is overridden to return `true` for link elements.
  * 2. `insertText` is overridden to wrap the inserted text in a link element
  *    if the text is a URL.
- * 3. `insertData` is overridden to wrap the inserted data in a link element
- *    if the data is a URL.
  *
  * @param editor - The Slate editor instance.
  * @returns The enhanced Slate editor instance.
  */
 function withInlines(editor: ReactEditor): ReactEditor {
-  const { insertData, insertText, isInline } = editor;
+  const { insertText, isInline } = editor;
 
   editor.isInline = (element) =>
     ["link"].includes(element.type) || isInline(element);
@@ -500,16 +520,6 @@ function withInlines(editor: ReactEditor): ReactEditor {
       insertText(text);
     }
   };
-
-  // editor.insertData = (data) => {
-  //   const text = data.getData("text/plain");
-
-  //   if (text && isUrl(text)) {
-  //     wrapLink(editor, text);
-  //   } else {
-  //     insertData(data);
-  //   }
-  // };
 
   return editor;
 }
