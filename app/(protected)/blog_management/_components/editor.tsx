@@ -1,23 +1,41 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CustomText } from "@/types";
+import { CustomText, LinkElement } from "@/types";
 import {
   FontBoldIcon,
   FontItalicIcon,
   UnderlineIcon,
+  Link1Icon,
+  LinkBreak2Icon,
 } from "@radix-ui/react-icons";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
 import Image from "next/image";
 import React, { RefAttributes, useCallback, useState } from "react";
-import { createEditor, Editor as SEditor, Element, Transforms } from "slate";
+import {
+  createEditor,
+  Editor as SEditor,
+  Element,
+  Transforms,
+  Range,
+} from "slate";
 import {
   Editable,
+  ReactEditor,
   RenderElementProps,
   RenderLeafProps,
   Slate,
   useSlate,
   withReact,
 } from "slate-react";
+
+import isUrl from "is-url";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const INITIAL_BLOG_CONTENT: Element[] = [
   {
@@ -64,7 +82,11 @@ function SlateElement({
      */
     case "link":
       return (
-        <a href={element.url} {...attributes}>
+        <a
+          href={element.url}
+          {...attributes}
+          className="underline hover:cursor-pointer"
+        >
           {children}
         </a>
       );
@@ -283,6 +305,147 @@ function HeadingButton({ level }: Readonly<{ level: number }>): JSX.Element {
 }
 
 /**
+ * Checks if the selection is currently inside a link.
+ *
+ * @param editor The Slate editor instance.
+ * @returns `true` if the selection is inside a link, `false` otherwise.
+ */
+const isLinkActive = (editor: SEditor) => {
+  const nodes = SEditor.nodes(editor, {
+    // Match elements that are not the editor itself, are elements, and have
+    // the type "link".
+    match: (n: any) =>
+      !SEditor.isEditor(n) && Element.isElement(n) && n.type === "link",
+  });
+
+  // If any matching nodes are found, return true.
+  return !nodes.next().done;
+};
+
+/**
+ * Unwraps the current selection from a link.
+ *
+ * @param editor The Slate editor instance.
+ */
+const unwrapLink = (editor: SEditor) => {
+  // Unwrap nodes that are not the editor itself, are elements, and have the
+  // type "link".
+  Transforms.unwrapNodes(editor, {
+    match: (n: any) =>
+      !SEditor.isEditor(n) && Element.isElement(n) && n.type === "link",
+  });
+};
+
+/**
+ * Wraps the current selection in a link with the given URL.
+ *
+ * If the selection is already inside a link, unwrap it first.
+ *
+ * @param editor The Slate editor instance.
+ * @param url The URL to wrap the selection with.
+ */
+const wrapLink = (editor: SEditor, url: string) => {
+  // Unwrap any existing link
+  if (isLinkActive(editor)) {
+    unwrapLink(editor);
+  }
+
+  const { selection } = editor;
+
+  // Check if the selection is collapsed
+  const isCollapsed = selection && Range.isCollapsed(selection);
+
+  // Create the new link element
+  const link: LinkElement = {
+    type: "link",
+    url,
+    children: isCollapsed ? [{ text: url }] : [],
+  };
+
+  // Insert or wrap the new link element
+  if (isCollapsed) {
+    // Insert the link element at the current selection
+    Transforms.insertNodes(editor, link);
+  } else {
+    // Wrap the selection in the link element
+    Transforms.wrapNodes(editor, link, { split: true });
+    // Move the selection to the end of the link element
+    Transforms.collapse(editor, { edge: "end" });
+  }
+};
+
+/**
+ * Inserts a link at the current selection with the given URL.
+ *
+ * @param editor The Slate editor instance.
+ * @param url The URL to insert the link with.
+ */
+const insertLink = (editor: SEditor, url: string): void => {
+  if (editor.selection) {
+    // Wrap the selection in a link element
+    wrapLink(editor, url);
+  }
+};
+
+function AddLinkButton() {
+  const editor = useSlate();
+  const isActive = isLinkActive(editor);
+  const [isOpen, setIsOpen] = useState(false);
+  const [url, setUrl] = useState("");
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={cn(isActive && "bg-accent")}
+          disabled={isActive}
+          onClick={() => setIsOpen(true)}
+        >
+          <Link1Icon />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent className="flex flex-col gap-2">
+        <Label htmlFor="url">URL</Label>
+        <Input
+          id="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyUp={(e) => {
+            if (e.key === "Enter") {
+              insertLink(editor, url);
+              setUrl("");
+              setIsOpen(false);
+            }
+          }}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function RemoveLinkButton() {
+  const editor = useSlate();
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        if (isLinkActive(editor)) {
+          unwrapLink(editor);
+        }
+      }}
+      disabled={!isLinkActive(editor)}
+    >
+      <LinkBreak2Icon />
+    </Button>
+  );
+}
+
+/**
  * A toolbar that provides buttons for formatting Slate editor content.
  *
  * The toolbar provides buttons for formatting text as bold, italic, or
@@ -304,8 +467,51 @@ function ToolBar() {
         <HeadingButton level={3} />
         <HeadingButton level={4} />
       </div>
+      <div className="space-x-1 px-2">
+        <AddLinkButton />
+        <RemoveLinkButton />
+      </div>
     </div>
   );
+}
+
+/**
+ * Enhance the Slate editor by adding some features related to links.
+ *
+ * 1. `isInline` is overridden to return `true` for link elements.
+ * 2. `insertText` is overridden to wrap the inserted text in a link element
+ *    if the text is a URL.
+ * 3. `insertData` is overridden to wrap the inserted data in a link element
+ *    if the data is a URL.
+ *
+ * @param editor - The Slate editor instance.
+ * @returns The enhanced Slate editor instance.
+ */
+function withInlines(editor: ReactEditor): ReactEditor {
+  const { insertData, insertText, isInline } = editor;
+
+  editor.isInline = (element) =>
+    ["link"].includes(element.type) || isInline(element);
+
+  editor.insertText = (text) => {
+    if (text && isUrl(text)) {
+      wrapLink(editor, text);
+    } else {
+      insertText(text);
+    }
+  };
+
+  // editor.insertData = (data) => {
+  //   const text = data.getData("text/plain");
+
+  //   if (text && isUrl(text)) {
+  //     wrapLink(editor, text);
+  //   } else {
+  //     insertData(data);
+  //   }
+  // };
+
+  return editor;
 }
 
 /**
@@ -338,7 +544,7 @@ function Editor({
   initialValue?: string;
   onValueChange: (value: string) => void;
 }>) {
-  const [editor] = useState(() => withReact(createEditor()));
+  const [editor] = useState(() => withInlines(withReact(createEditor())));
   const renderElement = useCallback(
     (props: RenderElementProps) => <SlateElement {...props} />,
     []

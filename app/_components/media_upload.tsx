@@ -20,21 +20,10 @@ function MediaUpload({
 }: Readonly<{
   onChange: (value: string) => void;
   imgUrl?: string;
-}>) {
+}>): React.ReactElement {
   const [img, setImg] = useState<string>();
   const uploadMediaMutation = useMutation({
-    /**
-     * The mutation function
-     *
-     * @param {File} file - The file to upload
-     * @returns {Promise<MediaUploadServerResponse>} The response from the server
-     */
     mutationFn: (file: File) => uploadMedia(file),
-    /**
-     * Called when the mutation is successful
-     *
-     * @param {MediaUploadServerResponse} data - The response from the server
-     */
     onSuccess: (data) => {
       setImg(data.url);
       onChange(data.id);
