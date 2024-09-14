@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CustomText, LinkElement } from "@/types";
+import { CustomText, ImageElement, LinkElement } from "@/types";
 import {
   FontBoldIcon,
   FontItalicIcon,
   UnderlineIcon,
   Link1Icon,
   LinkBreak2Icon,
+  ImageIcon,
 } from "@radix-ui/react-icons";
 import { IconProps } from "@radix-ui/react-icons/dist/types";
 import Image from "next/image";
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { uploadMedia } from "@/services/media.service";
 
 const INITIAL_BLOG_CONTENT: Element[] = [
   {
@@ -95,7 +97,19 @@ function SlateElement({
      * Render an image element.
      */
     case "image":
-      return <Image alt={element.alt} src={element.url} {...attributes} />;
+      return (
+        <div className="relative mx-auto container lg:w-1/2 md:h-96 h-56 shadow-md">
+          <Image
+            objectFit="contain"
+            fill
+            priority
+            className="p-3 md:p-6 aspect-auto"
+            alt={element.alt}
+            src={element.url}
+            {...attributes}
+          />
+        </div>
+      );
 
     /**
      * Render a paragraph element.
@@ -466,6 +480,56 @@ function RemoveLinkButton() {
   );
 }
 
+const insertImage = (editor: SEditor, url: string, alt: string = "") => {
+  const text = { text: "" };
+  const image: ImageElement = { type: "image", url, children: [text], alt };
+  Transforms.insertNodes(editor, image);
+  Transforms.insertNodes(editor, {
+    type: "paragraph",
+    children: [{ text: "" }],
+  });
+};
+
+function AddImageButton() {
+  const editor = useSlate();
+  const handlePickFile = useCallback(async () => {
+    if (!window.showOpenFilePicker) {
+      return;
+    }
+
+    try {
+      const [fileHandle] = await window.showOpenFilePicker({
+        types: [
+          {
+            description: "Image",
+            accept: {
+              "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"],
+            },
+          },
+        ],
+      });
+
+      if (!fileHandle) {
+        return;
+      }
+
+      const file = await fileHandle.getFile();
+
+      const uploadedFile = await uploadMedia(file);
+
+      insertImage(editor, uploadedFile.url, file.name);
+    } catch (error) {
+      console.error("Failed to pick file:", error);
+    }
+  }, [editor]);
+
+  return (
+    <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
+      <ImageIcon />
+    </Button>
+  );
+}
+
 /**
  * A toolbar that provides buttons for formatting Slate editor content.
  *
@@ -476,7 +540,7 @@ function RemoveLinkButton() {
  */
 function ToolBar() {
   return (
-    <div className="mb-4 divide-x flex gap-2 divide-gray-300">
+    <div className="mb-4 divide-x flex gap-2 flex-wrap divide-gray-300">
       <div className="space-x-1">
         <MarkButton format="bold" icon={FontBoldIcon} />
         <MarkButton format="italic" icon={FontItalicIcon} />
@@ -492,9 +556,45 @@ function ToolBar() {
         <AddLinkButton />
         <RemoveLinkButton />
       </div>
-      <div className="space-x-1 px-2"></div>
+      <div className="space-x-1 px-2">
+        <AddImageButton />
+      </div>
     </div>
   );
+}
+
+function withImages(editor: ReactEditor): ReactEditor {
+  const { insertData, isVoid } = editor;
+
+  editor.isVoid = (element) => {
+    return element.type === "image" ? true : isVoid(element);
+  };
+
+  editor.insertData = async (data) => {
+    const text = data.getData("text/plain");
+    const { files } = data;
+
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const [mime] = file.type.split("/");
+
+        if (mime === "image") {
+          try {
+            const uploadedFile = await uploadMedia(file);
+            insertImage(editor, uploadedFile.url, file.name);
+          } catch (error) {
+            console.error("Failed to upload image:", error);
+          }
+        }
+      }
+    } else if (isUrl(text)) {
+      insertImage(editor, text, text);
+    } else {
+      insertData(data);
+    }
+  };
+
+  return editor;
 }
 
 /**
@@ -554,7 +654,9 @@ function Editor({
   initialValue?: string;
   onValueChange: (value: string) => void;
 }>) {
-  const [editor] = useState(() => withInlines(withReact(createEditor())));
+  const [editor] = useState(() =>
+    withImages(withInlines(withReact(createEditor())))
+  );
   const renderElement = useCallback(
     (props: RenderElementProps) => <SlateElement {...props} />,
     []
