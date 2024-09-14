@@ -480,23 +480,60 @@ function RemoveLinkButton() {
   );
 }
 
+/**
+ * Inserts an image element into the Slate editor at the current selection.
+ *
+ * @param editor The Slate editor instance.
+ * @param url The URL of the image to insert.
+ * @param alt The alt text of the image to insert.
+ */
 const insertImage = (editor: SEditor, url: string, alt: string = "") => {
-  const text = { text: "" };
-  const image: ImageElement = { type: "image", url, children: [text], alt };
+  // Create a new image element with the given URL and alt text
+  const image: ImageElement = {
+    type: "image",
+    url,
+    children: [{ text: "" }],
+    alt,
+  };
+
+  // Insert the image element into the editor
   Transforms.insertNodes(editor, image);
+
+  // Insert a new paragraph element after the image element
   Transforms.insertNodes(editor, {
     type: "paragraph",
+    // The paragraph element should contain an empty text node
     children: [{ text: "" }],
   });
 };
 
+/**
+ * A button that allows the user to pick a file and upload it to the server
+ * using the `uploadMedia` function. Once the file is uploaded, the URL of the
+ * uploaded file is inserted into the Slate editor at the current selection,
+ * along with the name of the file.
+ *
+ * @returns A button that triggers the file picker and uploads the selected
+ * file.
+ */
 function AddImageButton() {
   const editor = useSlate();
   const handlePickFile = useCallback(async () => {
+    /**
+     * If the browser does not support the `showOpenFilePicker` API, do
+     * nothing.
+     */
     if (!window.showOpenFilePicker) {
       return;
     }
 
+    /**
+     * Prompt the user to select a file using the `showOpenFilePicker` API.
+     * The `types` option specifies that we want to allow the user to select
+     * image files.
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/window/showOpenFilePicker
+     */
     try {
       const [fileHandle] = await window.showOpenFilePicker({
         types: [
@@ -509,14 +546,28 @@ function AddImageButton() {
         ],
       });
 
+      /**
+       * If the user did not select a file, do nothing.
+       */
       if (!fileHandle) {
         return;
       }
 
+      /**
+       * Get the file object from the file handle.
+       */
       const file = await fileHandle.getFile();
 
+      /**
+       * Upload the file to the server using the `uploadMedia` function.
+       * The `uploadMedia` function returns the URL of the uploaded file.
+       */
       const uploadedFile = await uploadMedia(file);
 
+      /**
+       * Insert the uploaded file into the Slate editor at the current
+       * selection.
+       */
       insertImage(editor, uploadedFile.url, file.name);
     } catch (error) {
       console.error("Failed to pick file:", error);
@@ -563,18 +614,40 @@ function ToolBar() {
   );
 }
 
+/**
+ * Enhance the Slate editor by adding support for inserting images.
+ *
+ * This plugin overrides the `isVoid` method to return `true` if the element is
+ * an image, and overrides the `insertData` method to handle inserting images.
+ *
+ * @param editor - The Slate editor instance.
+ * @returns The enhanced Slate editor instance.
+ */
 function withImages(editor: ReactEditor): ReactEditor {
   const { insertData, isVoid } = editor;
 
+  /**
+   * Override the `isVoid` method to return `true` if the element is an image.
+   * This is necessary because Slate doesn't consider image elements as void
+   * by default.
+   */
   editor.isVoid = (element) => {
     return element.type === "image" ? true : isVoid(element);
   };
 
+  /**
+   * Override the `insertData` method to handle inserting images.
+   * If the user pastes a URL, create an image element with the URL.
+   * If the user pastes a file, upload the file and create an image element
+   * with the uploaded file's URL.
+   */
   editor.insertData = async (data) => {
     const text = data.getData("text/plain");
     const { files } = data;
 
     if (files && files.length > 0) {
+      // If the user pasted a file, upload the file and create an image element
+      // with the uploaded file's URL.
       for (const file of files) {
         const [mime] = file.type.split("/");
 
@@ -588,8 +661,10 @@ function withImages(editor: ReactEditor): ReactEditor {
         }
       }
     } else if (isUrl(text)) {
+      // If the user pasted a URL, create an image element with the URL.
       insertImage(editor, text, text);
     } else {
+      // If the user pasted text, insert the text as usual.
       insertData(data);
     }
   };
