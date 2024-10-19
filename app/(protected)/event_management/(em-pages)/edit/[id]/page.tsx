@@ -84,7 +84,7 @@ export default function UpdateEventPage({
   const updateEventMutation = useMutation({
     mutationFn: (payload: CreateEventRequest) => updateEvent(id, payload),
     onSuccess: (res) => {
-      toast.success("Event created successfully", {
+      toast.success("Event updated successfully", {
         position: "top-right",
       });
       queryClient.invalidateQueries({ queryKey: ["events"] });
