@@ -3,12 +3,9 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol:
-          process.env.NODE_ENV === "preview" ||
-          process.env.NODE_ENV === "production"
-            ? "https"
-            : "http",
+        protocol: "http",
         hostname: process.env.BACKEND_HOST,
+        pathname: "/storage/media/**",
       },
     ],
   },
