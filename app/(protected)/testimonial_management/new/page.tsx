@@ -66,7 +66,9 @@ export default function CreateNewTestimonialPage() {
     },
   });
 
-  const handleSubmit = () => {};
+  const handleSubmit = form.handleSubmit((data) => {
+    saveTestimonialMutation.mutate(data);
+  });
   return (
     <div className="w-full space-y-6">
       <div className="flex pt-4">
