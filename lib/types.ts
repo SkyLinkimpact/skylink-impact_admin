@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   createBlogFormSchema,
   createEventFormSchema,
+  createTestimonialFormSchema,
   forgotPasswordFormSchema,
   loginFormSchema,
   resetPasswordFormSchema,
@@ -284,3 +285,13 @@ export type Testimonial = {
  * The possible filters for the testimonial collection.
  */
 export type TestimonialCollectionFilter = "all" | "pending";
+
+/**
+ * A request to create a new testimonial.
+ *
+ * @remarks
+ * This type is inferred from the {@link createTestimonialFormSchema} schema.
+ */
+export type CreateTestimonialRequest = z.infer<
+  typeof createTestimonialFormSchema
+>;

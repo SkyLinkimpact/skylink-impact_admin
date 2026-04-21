@@ -1,5 +1,9 @@
 import api from "@/lib/api";
-import { PaginatedResponse, Testimonial } from "@/lib/types";
+import {
+  CreateTestimonialRequest,
+  PaginatedResponse,
+  Testimonial,
+} from "@/lib/types";
 
 /**
  * Retrieves all testimonials from the server.
@@ -8,11 +12,11 @@ import { PaginatedResponse, Testimonial } from "@/lib/types";
  * @return {Promise<PaginatedResponse<Testimonial>>} The testimonials.
  */
 export async function getAllTestimonials(
-  page = 1
+  page = 1,
 ): Promise<PaginatedResponse<Testimonial>> {
   const response = await api.get<PaginatedResponse<Testimonial>>(
     // Use the page parameter to retrieve the specified page of testimonials
-    `/testimonials?filter=all&page=${page}`
+    `/testimonials?filter=all&page=${page}`,
   );
   return response.data;
 }
@@ -27,11 +31,11 @@ export async function getAllTestimonials(
  * The `filter=pending` parameter is used to retrieve only the pending testimonials.
  */
 export async function getPendingTestimonials(
-  page = 1
+  page = 1,
 ): Promise<PaginatedResponse<Testimonial>> {
   const response = await api.get<PaginatedResponse<Testimonial>>(
     // Use the filter parameter to only retrieve pending testimonials
-    `/testimonials?filter=pending&page=${page}`
+    `/testimonials?filter=pending&page=${page}`,
   );
   // Return the data property of the response
   return response.data;
@@ -57,4 +61,17 @@ export async function approveTestimonial(id: string): Promise<void> {
 export async function deleteTestimonial(id: string): Promise<void> {
   // Delete the testimonial from the server
   await api.delete(`/testimonials/${id}`);
+}
+
+export async function createTestimonial(
+  payload: CreateTestimonialRequest,
+): Promise<{ message: string }> {
+  // Make a POST request to the server to create a testimonial
+  const response = await api.post<{ message: string }>(
+    "/testimonials",
+    payload,
+  );
+
+  // Return the created testimonial
+  return response.data;
 }

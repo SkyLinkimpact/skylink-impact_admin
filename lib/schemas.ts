@@ -84,3 +84,15 @@ export const updateBlogFormSchema = z.object({
     media_id: z.string().min(1, "Thumbnail is required"),
     event_at: z.string().min(1, "Date/Time is required"),
   });
+
+  /**
+   * Creates a schema for validating the create testimonial form.
+   *
+   * @remarks
+   * These schema are used by React Hook Form to validate the inputs
+   * of the create testimonial form.
+   */
+  export const createTestimonialFormSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    comment: z.string().min(1, "Content is required"),
+  });
