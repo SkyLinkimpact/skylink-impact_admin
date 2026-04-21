@@ -45,6 +45,8 @@ export default function CreateNewTestimonialPage() {
       toast.success(res.message, {
         position: "top-right",
       });
+
+      form.reset();
     },
 
     onError: (err: ServerErrorResponse) => {
