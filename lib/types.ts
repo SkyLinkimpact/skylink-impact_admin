@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   createBlogFormSchema,
   createEventFormSchema,
+  createEventTopicFormSchema,
   createTestimonialFormSchema,
   forgotPasswordFormSchema,
   loginFormSchema,
@@ -182,6 +183,50 @@ export type Event = {
 };
 
 /**
+ * An event with its associated topics.
+ *
+ * Represents an event along with its associated topics.
+ */
+export type EventWithTopics = Event & {
+  /**
+   * The topics associated with the event.
+   */
+  topics: EventTopic[];
+};
+
+/**
+ * An event topic.
+ *
+ * Represents an event topic.
+ */
+export type EventTopic = {
+  /**
+   * The ID of the event topic.
+   */
+  id: string;
+  /**
+   * The title of the event topic.
+   */
+  title: string;
+  /**
+   * The description of the event topic.
+   */
+  description?: string;
+  /**
+   * The speaker for the event topic.
+   */
+  speaker: string;
+  /**
+   * The image of the speaker for the event topic.
+   */
+  speakerImage?: Omit<Media, "blogs" | "events"> | null;
+  /**
+   * The start time of the event topic.
+   */
+  startTime: Date;
+};
+
+/**
  * Media entity.
  *
  * Represents a media item.
@@ -252,6 +297,10 @@ export type UpdateBlogRequest = z.infer<typeof updateBlogFormSchema>;
  * This type is inferred from the {@link createEventFormSchema} schema.
  */
 export type CreateEventRequest = z.infer<typeof createEventFormSchema>;
+
+export type CreateEventTopicRequest = z.infer<
+  typeof createEventTopicFormSchema
+>;
 
 /**
  * A testimonial.

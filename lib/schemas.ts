@@ -71,28 +71,53 @@ export const updateBlogFormSchema = z.object({
   isDraft: z.boolean().nullish().default(false),
 });
 
-  /**
-   * Creates a schema for validating the create event form.
-   *
-   * @remarks
-   * These schema are used by React Hook Form to validate the inputs
-   * of the create event form.
-   */
-  export const createEventFormSchema = z.object({
-    title: z.string().min(1, "Title is required"),
-    url: z.string().min(1, "Event URL is required").url("Invalid URL"),
-    media_id: z.string().min(1, "Thumbnail is required"),
-    event_at: z.string().min(1, "Date/Time is required"),
-  });
+/**
+ * Creates a schema for validating the create event form.
+ *
+ * @remarks
+ * These schema are used by React Hook Form to validate the inputs
+ * of the create event form.
+ */
+export const createEventFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  url: z.string().min(1, "Event URL is required").url("Invalid URL"),
+  media_id: z.string().min(1, "Thumbnail is required"),
+  event_at: z.string().min(1, "Date/Time is required"),
+});
 
-  /**
-   * Creates a schema for validating the create testimonial form.
-   *
-   * @remarks
-   * These schema are used by React Hook Form to validate the inputs
-   * of the create testimonial form.
-   */
-  export const createTestimonialFormSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    comment: z.string().min(1, "Content is required"),
-  });
+/**
+ * Creates a schema for validating the create event topic form.
+ *
+ * @remarks
+ * These schema are used by React Hook Form to validate the inputs
+ * of the create event topic form.
+ */
+export const createEventTopicFormSchema = z.object({
+  event_id: z.string().min(1, "Event ID is required"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .min(3, "Title must be at least 3 characters")
+    .max(255, "Title must be at most 255 characters"),
+  speaker: z
+    .string()
+    .min(1, "Speaker is required")
+    .max(255, "Speaker must be at most 255 characters"),
+  start_time: z.string().refine((date) => new Date(date) > new Date(), {
+    message: "Start time must be in the future",
+  }),
+  description: z.string().optional(),
+  media_id: z.string().optional(),
+});
+
+/**
+ * Creates a schema for validating the create testimonial form.
+ *
+ * @remarks
+ * These schema are used by React Hook Form to validate the inputs
+ * of the create testimonial form.
+ */
+export const createTestimonialFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  comment: z.string().min(1, "Content is required"),
+});

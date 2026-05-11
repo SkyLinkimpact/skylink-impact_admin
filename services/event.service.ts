@@ -1,5 +1,11 @@
 import api from "@/lib/api";
-import { CreateEventRequest, Event } from "@/lib/types";
+import {
+  CreateEventRequest,
+  CreateEventTopicRequest,
+  Event,
+  EventTopic,
+  EventWithTopics,
+} from "@/lib/types";
 
 /**
  * Retrieves all events from the server.
@@ -15,11 +21,11 @@ export async function getAllEvents(): Promise<Event[]> {
  * Retrieves an event by ID from the server.
  *
  * @param {string} id - The ID of the event to retrieve.
- * @return {Promise<Event>} - A promise that resolves to an event object.
+ * @return {Promise<EventWithTopics>} - A promise that resolves to an event object.
  */
-export async function getEvent(id: string): Promise<Event> {
+export async function getEvent(id: string): Promise<EventWithTopics> {
   // Make a GET request to the server to retrieve an event by ID
-  const response = await api.get<Event>(`/events/${id}`);
+  const response = await api.get<EventWithTopics>(`/events/${id}`);
 
   // Return the event
   return response.data;
@@ -59,11 +65,24 @@ export async function createEvent(payload: CreateEventRequest): Promise<Event> {
  */
 export async function updateEvent(
   id: string,
-  payload: CreateEventRequest
+  payload: CreateEventRequest,
 ): Promise<Event> {
   // Make a PATCH request to the server to update an event
   const response = await api.patch<Event>(`/events/${id}`, payload);
 
   // Return the updated event
   return response.data;
+}
+
+/**
+ * Adds a new topic to an event.
+ * @param {CreateEventTopicRequest} payload - The request to create a new topic.
+ * @return {Promise<EventTopic>} - A promise that resolves to the created topic.
+ */
+export async function addEventTopic(
+  payload: CreateEventTopicRequest,
+): Promise<EventTopic> {
+  const respponse = await api.post("/event-topics", payload);
+
+  return respponse.data;
 }
