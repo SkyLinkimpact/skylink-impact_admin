@@ -23,106 +23,66 @@ import { CreateEventRequest, ServerErrorResponse } from "@/lib/types";
 import { updateEvent } from "@/services/event.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEvent } from "./event-context";
 
-function EditEventForm() {
+export default function EditEventForm() {
   const { event, eventId: id } = useEvent();
-
   const queryClient = useQueryClient();
 
-  /**
-   * The form for editing the event.
-   */
   const form = useForm<CreateEventRequest>({
-    /**
-     * The resolver to validate the form data.
-     */
     resolver: zodResolver(createEventFormSchema),
-    /**
-     * The default values for the form fields.
-     */
     defaultValues: {
       title: "",
       url: "",
       event_at: "",
-      media_id: "",
+      media_id: undefined,
     },
   });
 
-  /**
-   * The mutation to update the event.
-   */
   const updateEventMutation = useMutation({
     mutationFn: (payload: CreateEventRequest) => updateEvent(id, payload),
     onSuccess: () => {
-      toast.success("Event updated successfully", {
-        position: "top-right",
-      });
+      toast.success("Event updated successfully", { position: "top-right" });
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["event", id] });
     },
     onError: (error: ServerErrorResponse) => {
-      toast.error(error.response.data.message, {
-        position: "top-right",
-      });
+      const message = error.response?.data?.message || "Failed to update event";
+      toast.error(message, { position: "top-right" });
 
-      if (error.response.data.errors?.title) {
-        form.setError("title", {
-          type: "custom",
-          message: error.response.data.errors.title[0],
-        });
-      }
-
-      if (error.response.data.errors?.url) {
-        form.setError("url", {
-          type: "custom",
-          message: error.response.data.errors.url[0],
-        });
-      }
-
-      if (error.response.data.errors?.event_at) {
-        form.setError("event_at", {
-          type: "custom",
-          message: error.response.data.errors.event_at[0],
-        });
-      }
-
-      if (error.response.data.errors?.media_id) {
-        form.setError("media_id", {
-          type: "custom",
-          message: error.response.data.errors.media_id[0],
-        });
-      }
+      // Server-side validation errors
+      const errors = error.response?.data?.errors;
+      if (errors?.title) form.setError("title", { message: errors.title[0] });
+      if (errors?.url) form.setError("url", { message: errors.url[0] });
+      if (errors?.event_at)
+        form.setError("event_at", { message: errors.event_at[0] });
+      if (errors?.media_id)
+        form.setError("media_id", { message: errors.media_id[0] });
     },
   });
 
-  /**
-   * Handle form submission.
-   */
-  const handleSubmit = form.handleSubmit((data) => {
+  // Populate form when event data is available
+  useEffect(() => {
+    if (!event) return;
+
+    const localDate = new Date(event.eventAt);
+    const formattedDate = localDate.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+
+    form.reset({
+      title: event.title,
+      url: event.url || "",
+      media_id: event.thumbnail?.id || undefined,
+      event_at: formattedDate,
+    });
+  }, [event, form]);
+
+  const onSubmit = form.handleSubmit((data) => {
     updateEventMutation.mutate(data);
   });
-
-  useEffect(() => {
-    if (event) {
-      /**
-       * Set the form values from the event.
-       */
-      form.setValue("title", event.title);
-      form.setValue("url", event.url);
-      form.setValue("media_id", event.thumbnail?.id ?? "");
-
-      const localDate = new Date(event.eventAt);
-      const offset = localDate.getTimezoneOffset();
-      localDate.setMinutes(localDate.getMinutes() - offset); // Adjust for timezone offset
-      form.setValue("event_at", localDate.toISOString().slice(0, 16)); // Format the date correctly
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [event]);
 
   return (
     <Card>
@@ -138,22 +98,27 @@ function EditEventForm() {
 
       <CardContent>
         <Form {...form}>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form onSubmit={onSubmit} className="space-y-6">
+            {/* Thumbnail */}
             <FormField
               control={form.control}
               name="media_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Thumbnail</FormLabel>
-                  <MediaUpload
-                    imgUrl={event?.thumbnail?.url}
-                    onChange={field.onChange}
-                  />
+                  <FormControl>
+                    <MediaUpload
+                      onChange={field.onChange}
+                      value={field.value}
+                      imgUrl={event?.thumbnail?.url}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Title */}
             <FormField
               control={form.control}
               name="title"
@@ -161,13 +126,14 @@ function EditEventForm() {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Title" {...field} />
+                    <Input placeholder="Event title" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* URL */}
             <FormField
               control={form.control}
               name="url"
@@ -175,19 +141,20 @@ function EditEventForm() {
                 <FormItem>
                   <FormLabel>Event URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="Event URL" {...field} />
+                    <Input placeholder="https://..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Date & Time */}
             <FormField
               control={form.control}
               name="event_at"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date/Time</FormLabel>
+                  <FormLabel>Date & Time</FormLabel>
                   <FormControl>
                     <Input type="datetime-local" {...field} />
                   </FormControl>
@@ -198,11 +165,14 @@ function EditEventForm() {
 
             <Button
               type="submit"
-              className="flex items-center justify-center w-full"
+              className="w-full"
               disabled={updateEventMutation.isPending}
             >
               {updateEventMutation.isPending ? (
-                <Loader className="animate-spin" />
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  SAVING CHANGES...
+                </>
               ) : (
                 "SAVE EVENT"
               )}
@@ -213,5 +183,3 @@ function EditEventForm() {
     </Card>
   );
 }
-
-export default EditEventForm;

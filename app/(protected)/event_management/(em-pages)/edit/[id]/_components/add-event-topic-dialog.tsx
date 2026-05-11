@@ -11,7 +11,7 @@ import { createEventTopicFormSchema } from "@/lib/schemas";
 import { CreateEventTopicRequest, ServerErrorResponse } from "@/lib/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useEvent } from "./event-context";
 import {
@@ -42,7 +42,7 @@ export default function AddEventTopicDialog() {
       event_id: eventId,
       title: "",
       speaker: "",
-      start_time: undefined,
+      start_time: "",
       description: "",
       media_id: undefined,
     },
@@ -54,6 +54,8 @@ export default function AddEventTopicDialog() {
       toast.success("Event topic added successfully");
       queryClient.invalidateQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+
+      form.reset();
       setOpen(false);
     },
     onError: (error: ServerErrorResponse) => {
@@ -62,9 +64,21 @@ export default function AddEventTopicDialog() {
   });
 
   const handleSubmit = form.handleSubmit((data) => {
-    console.log("data", data);
-    // addEventTopicMutation.mutate(data);
+    addEventTopicMutation.mutate(data);
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        event_id: eventId,
+        title: "",
+        speaker: "",
+        description: "",
+        media_id: undefined,
+        start_time: "",
+      });
+    }
+  }, [open, eventId, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -133,9 +147,13 @@ export default function AddEventTopicDialog() {
               name="media_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Speaker Image</FormLabel>
+                  <FormLabel>Speaker Image (Optional)</FormLabel>
                   <FormControl>
-                    <MediaUpload onChange={field.onChange} />
+                    <MediaUpload
+                      onChange={field.onChange}
+                      value={field.value}
+                      resetKey={open ? "dialog-open" : "closed"}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -152,6 +170,7 @@ export default function AddEventTopicDialog() {
                       type="datetime-local"
                       placeholder="Enter start time"
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />

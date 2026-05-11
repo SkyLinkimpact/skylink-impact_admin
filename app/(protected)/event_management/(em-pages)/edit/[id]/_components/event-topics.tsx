@@ -5,68 +5,109 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEvent } from "./event-context";
-import { cn } from "@/lib/utils";
-import AddEventTopicDialog from "./add-event-topic-dialog";
 import Image from "next/image";
+import AddEventTopicDialog from "./add-event-topic-dialog";
 
 export default function EventTopics() {
   const { event, eventIsLoading } = useEvent();
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Event Topics</CardTitle>
-        <CardDescription>View all event topics.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Event Topics</CardTitle>
+          <CardDescription>
+            Manage the agenda and speakers for this event.
+          </CardDescription>
+        </div>
+
+        {event && event.topics.length > 0 && <AddEventTopicDialog />}
       </CardHeader>
 
       <CardContent>
-        <div
-          className={cn(
-            "w-full flex flex-col",
-            (eventIsLoading || (event && event.topics.length > 0)) &&
-              " py-20 items-center justify-center",
-          )}
-        >
-          {eventIsLoading && <Loader className="animate-spin" />}
-          {event?.topics.length === 0 && !eventIsLoading && (
-            <div className="flex flex-col items-center justify-center gap-2">
-              <p className="text-sm text-muted-foreground">
-                No event topics found.
-              </p>
-              <AddEventTopicDialog />
-            </div>
-          )}
+        {/* Loading State */}
+        {eventIsLoading && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="mt-4 text-sm text-muted-foreground">
+              Loading topics...
+            </p>
+          </div>
+        )}
 
-          {event && event.topics.length > 0 && (
-            <div className="w-full flex flex-col gap-4">
-              {event?.topics.map((topic) => (
-                <div key={topic.id} className="p-4 gap-4 border rounded-md flex">
+        {/* Empty State */}
+        {!eventIsLoading && event?.topics.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="text-6xl mb-6 opacity-40">📅</div>
+            <h3 className="text-lg font-medium">No topics yet</h3>
+            <p className="text-sm text-muted-foreground mt-2 max-w-xs">
+              Add the first topic to build your event agenda.
+            </p>
+            <AddEventTopicDialog />
+          </div>
+        )}
+
+        {/* Topics List */}
+        {!eventIsLoading && event && event.topics.length > 0 && (
+          <div className="space-y-4">
+            {event.topics.map((topic) => (
+              <div
+                key={topic.id}
+                className="flex gap-4 p-4 border rounded-xl hover:shadow-sm transition-shadow"
+              >
+                <div className="relative flex-shrink-0">
                   <Image
                     src={
                       topic.speakerImage?.url ||
                       "/assets/favicon/android-chrome-512x512.png"
                     }
-                    alt={topic.title}
-                    width={100}
-                    height={100}
-                    className="rounded-md p-2 border"
+                    alt={topic.speaker || "Speaker"}
+                    width={150}
+                    height={150}
+                    className="rounded-lg object-cover border"
                   />
-                  <div className="flex flex-col">
-                    <h3 className="text-lg font-semibold">{topic.title}</h3>
-                    <p>{topic.description}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {topic.speaker} -{" "}
-                      {new Date(topic.startTime).toLocaleString()}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-lg leading-tight">
+                    {topic.title}
+                  </h3>
+
+                  {topic.description && (
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                      {topic.description}
                     </p>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                    {topic.speaker && (
+                      <p>
+                        <span className="text-muted-foreground">Speaker:</span>{" "}
+                        <span className="font-medium">{topic.speaker}</span>
+                      </p>
+                    )}
+                    {topic.startTime && (
+                      <p>
+                        <span className="text-muted-foreground">Starts:</span>{" "}
+                        {new Date(topic.startTime).toLocaleString([], {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
+                      </p>
+                    )}
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
 
+            {/* Add button at bottom when topics exist */}
+            <div className="pt-4">
               <AddEventTopicDialog />
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
