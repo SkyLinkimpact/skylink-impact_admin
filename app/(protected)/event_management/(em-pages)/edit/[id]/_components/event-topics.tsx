@@ -52,55 +52,63 @@ export default function EventTopics() {
         {/* Topics List */}
         {!eventIsLoading && event && event.topics.length > 0 && (
           <div className="space-y-4">
-            {event.topics.map((topic) => (
-              <div
-                key={topic.id}
-                className="flex gap-4 p-4 border rounded-xl hover:shadow-sm transition-shadow"
-              >
-                <div className="relative flex-shrink-0">
-                  <Image
-                    src={
-                      topic.speakerImage?.url ||
-                      "/assets/favicon/android-chrome-512x512.png"
-                    }
-                    alt={topic.speaker || "Speaker"}
-                    width={150}
-                    height={150}
-                    className="rounded-lg object-cover border"
-                  />
-                </div>
+            {event.topics
+              .sort((a, b) => {
+                const dateA = new Date(a.startTime);
+                const dateB = new Date(b.startTime);
+                return dateA.getTime() - dateB.getTime();
+              })
+              .map((topic) => (
+                <div
+                  key={topic.id}
+                  className="flex gap-4 p-4 border rounded-xl hover:shadow-sm transition-shadow"
+                >
+                  <div className="relative flex-shrink-0">
+                    <Image
+                      src={
+                        topic.speakerImage?.url ||
+                        "/assets/favicon/android-chrome-512x512.png"
+                      }
+                      alt={topic.speaker || "Speaker"}
+                      width={150}
+                      height={150}
+                      className="rounded-lg object-cover border"
+                    />
+                  </div>
 
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg leading-tight">
-                    {topic.title}
-                  </h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg leading-tight">
+                      {topic.title}
+                    </h3>
 
-                  {topic.description && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                      {topic.description}
-                    </p>
-                  )}
-
-                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                    {topic.speaker && (
-                      <p>
-                        <span className="text-muted-foreground">Speaker:</span>{" "}
-                        <span className="font-medium">{topic.speaker}</span>
+                    {topic.description && (
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {topic.description}
                       </p>
                     )}
-                    {topic.startTime && (
-                      <p>
-                        <span className="text-muted-foreground">Starts:</span>{" "}
-                        {new Date(topic.startTime).toLocaleString([], {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
-                      </p>
-                    )}
+
+                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                      {topic.speaker && (
+                        <p>
+                          <span className="text-muted-foreground">
+                            Speaker:
+                          </span>{" "}
+                          <span className="font-medium">{topic.speaker}</span>
+                        </p>
+                      )}
+                      {topic.startTime && (
+                        <p>
+                          <span className="text-muted-foreground">Starts:</span>{" "}
+                          {new Date(topic.startTime).toLocaleString([], {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
             {/* Add button at bottom when topics exist */}
             <div className="pt-4">
